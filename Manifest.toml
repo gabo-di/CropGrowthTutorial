@@ -50,7 +50,9 @@ version = "0.4.2"
 
 [[deps.AquaCrop]]
 deps = ["CSV", "DataFrames", "Dates", "TOML", "Unitful"]
-path = "/Users/gabriel/.julia/dev/AquaCrop"
+git-tree-sha1 = "f49920d4278c5fcbbf43239ee6d6a6deedc1cceb"
+repo-rev = "main"
+repo-url = "https://github.com/gabo-di/AquaCrop.jl"
 uuid = "8f16cebd-c0b4-44a3-857f-c101f083256c"
 version = "0.1.0-DEV"
 
