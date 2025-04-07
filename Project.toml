@@ -1,6 +1,16 @@
 name = "CropGrowthTutorial"
-[compat]
-julia = "1.10.1"
-DrWatson = "2.18.0"
+
 [deps]
+AquaCrop = "8f16cebd-c0b4-44a3-857f-c101f083256c"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DrWatson = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
+IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
+[compat]
+DrWatson = "2.18.0"
+julia = "1.10.1"

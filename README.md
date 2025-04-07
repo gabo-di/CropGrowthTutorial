@@ -26,3 +26,15 @@ using DrWatson
 @quickactivate "CropGrowthTutorial"
 ```
 which auto-activate the project and enable local path handling from DrWatson.
+
+## Notebooks
+In case you have problems runing the notbooks then run
+```julia
+using IJulia
+IJulia.installkernel("Julia CropGrowthTutorial", "--project=$(Base.active_project())")
+notebook(;dir=projectdir(), detached=true)
+```
+then browse to the notebook that you want to run
+
+
+
