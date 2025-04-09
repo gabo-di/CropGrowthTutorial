@@ -2,11 +2,12 @@
 # functions to process and calibrate phenology data #
 #####################################################
 """
-    process_crop_phenology(df_0::AbsDataFrame, sowing_phase::Int, harvest_phase::Int)
+    df = process_crop_phenology(raw_phenology_df::AbsDataFrame, sowing_phase::Int, harvest_phase::Int)
 
 returns a DataFrame with the dates of the `sowing_phase` and `harvest_phase` and other important phenology phases 
 """
-function process_crop_phenology(df_0::AbstractDataFrame, sowing_phase::Int, harvest_phase::Int)
+function process_crop_phenology(raw_phenology_df::AbstractDataFrame, sowing_phase::Int, harvest_phase::Int)
+    # this phases are from data/exp_raw/phase_descriptions.csv
     additional_phases = Dict(
         :emergencedate=>[12, 16], 
         :beginfloweringdate=>[5, 18, 17], 
@@ -15,7 +16,7 @@ function process_crop_phenology(df_0::AbstractDataFrame, sowing_phase::Int, harv
 
     dateformat = DateFormat("yyyymmdd")
     make_date = (x) -> Date(string(x), dateformat)
-    df = copy(df_0)
+    df = copy(raw_phenology_df)
     df[!,:date] = make_date.(df.eintrittsdatum)
 
     sort!(df, :date)
@@ -81,30 +82,37 @@ end
 returns a DataFrame with the duration in days and gddays of some important phenology phases using the actual data
 """
 function process_crop_phenology_actual_gdd(crop_name, phenology_df, hk_clim_df; kw...)
-        df = DataFrame(
-                        sowingdate = Date[],
-                        harvestdate = Date[],
+    df = DataFrame(
+                    sowingdate = Date[],
+                    harvestdate = Date[],
 
-                        harvest_actualdays = Union{Missing,Int}[],
-                        harvest_actualgdd = Union{Missing,Float64}[],
-        
-                        beginflowering_actualdays = Union{Missing,Int}[],
-                        beginflowering_actualgdd = Union{Missing,Float64}[],
+                    harvest_actualdays = Union{Missing,Int}[],
+                    harvest_actualgdd = Union{Missing,Float64}[],
+    
+                    beginflowering_actualdays = Union{Missing,Int}[],
+                    beginflowering_actualgdd = Union{Missing,Float64}[],
 
-                        endflowering_actualdays = Union{Missing,Int}[],
-                        endflowering_actualgdd = Union{Missing,Float64}[],
+                    endflowering_actualdays = Union{Missing,Int}[],
+                    endflowering_actualgdd = Union{Missing,Float64}[],
 
-                        emergence_actualdays = Union{Missing,Int}[],
-                        emergence_actualgdd = Union{Missing,Float64}[],
-                        )
+                    emergence_actualdays = Union{Missing,Int}[],
+                    emergence_actualgdd = Union{Missing,Float64}[],
+                    )
 
-        for row in eachrow(phenology_df)
-            gdd_df, _ = run_cropgdd(crop_name, row.sowingdate, row.harvestdate, hk_clim_df; kw...);
-            res = find_actual_days_gdd(gdd_df, row)
-            push!(df, res)
+    # setup the crop since we need some parameters of it
+    crop = AquaCrop.RepCrop()
+    AquaCrop.set_crop!(crop, crop_name; aux = haskey(kw, :crop_dict) ? kw[:crop_dict] : nothing)
+    
+    for row in eachrow(phenology_df)
+        gdd_df, all_ok = run_cropgdd(crop, row.sowingdate, row.harvestdate, hk_clim_df; kw...);
+        if !all_ok.logi
+            continue
         end
+        res = find_actual_days_gdd(gdd_df, row)
+        push!(df, res)
+    end
 
-        return df
+    return df
 end
 
 function find_actual_days_gdd(crop_gdd, row)
@@ -162,9 +170,17 @@ function process_crop_phenology_simulated_gdd(crop_name, phenology_df, hk_clim_d
                     emergence_simulateddays = Union{Missing,Int}[],
                     emergence_simulatedgdd = Union{Missing,Float64}[]
                     )
+                    
+    # setup the crop since we need some parameters of it
+    crop = AquaCrop.RepCrop()
+    AquaCrop.set_crop!(crop, crop_name; aux = haskey(kw, :crop_dict) ? kw[:crop_dict] : nothing)
 
     for row in eachrow(phenology_df)
-        gdd_df, crop = run_cropgdd(crop_name, row.sowingdate, row.sowingdate + days_after_sowing, hk_clim_df; kw...);
+        gdd_df, all_ok = run_cropgdd(crop, row.sowingdate, row.sowingdate + days_after_sowing, hk_clim_df; kw...);
+        if !all_ok.logi
+            continue
+        end
+
         res = find_simulated_days_gdd(gdd_df, crop)
         res[:sowingdate] = row.sowingdate
         push!(df, res)
@@ -218,4 +234,60 @@ function find_simulated_days_gdd(gdd_df, crop)
     end
 
     return res
+end
+
+"""
+    crop_dict, df = calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df, sowing_phase, harvest_phase; kw...)
+
+returns a crop_dict with the calibrated crop parameters related to phenology stages
+"""
+function calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df, sowing_phase, harvest_phase; kw...)
+    # check if we hace a crop_dict
+    if haskey(kw, :crop_dict)
+        crop_dict = kw[:crop_dict]
+    else
+        crop_dict = Dict()
+    end
+
+    pheno_df = process_crop_phenology(raw_phenology_df, sowing_phase, harvest_phase)
+    pheno_actual_df = process_crop_phenology_actual_gdd(crop_name, pheno_df, hk_clim_df; kw...)
+     
+    # setup the crop since we need some parameters of it
+    crop = AquaCrop.RepCrop()
+    AquaCrop.set_crop!(crop, crop_name; aux = haskey(kw, :crop_dict) ? kw[:crop_dict] : nothing)
+
+
+    pars = ["GDDaysToHarvest", "GDDaysToFlowering", "GDDaysToGermination"]
+    cols = [:harvest_actualgdd, :beginflowering_actualgdd, :emergence_actualgdd]
+    for (par_, col) in zip(pars, cols)
+        v = pheno_actual_df[!,col]
+        crop_dict[par_] = _select_val( median(v), getfield(crop, Symbol(par_)) )
+    end
+
+    v = pheno_actual_df[:,:endflowering_actualgdd]
+    par_ = "GDDLengthFlowering"
+    crop_dict[par_] = _select_val( median(v) - crop_dict["GDDaysToFlowering"], getfield(crop, Symbol(par_)) ) 
+
+    # create a kw tuple with the additional information that we wish to pass to AquaCrop
+    # consider the median of the actual gdd distribution for each phenology phase
+    kwargs = (
+            crop_dict = crop_dict, 
+         );
+
+    # get the days and growing degree days for each phenology phase from the simulated data using the additional information
+    pheno_simulated_df = process_crop_phenology_simulated_gdd(crop_name, pheno_df, hk_clim_df; kwargs...)
+
+    # compare the day difference between the actual data and the simulated data
+    df = leftjoin(pheno_actual_df, pheno_simulated_df; on=:sowingdate);
+
+    return crop_dict, df
+end
+
+function _select_val(x, y)
+    a = round(Int, coalesce(x, y))
+    if a > 0 
+        return a
+    else
+        return y
+    end
 end

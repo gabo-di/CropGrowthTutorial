@@ -121,11 +121,11 @@ function run_simulation(soil_type, crop_type, crop_date, hv_clim_df; kw...)
 end
 
 """
-    df, crop = run_cropgdd(crop_type, start_date, end_date, hv_clim_df; kw...)
+    df, crop = run_cropgdd(crop::AquaCrop.RepCrop, start_date, end_date, hv_clim_df; kw...)
 
 for a given `crop_type`, climate and dates returns the growing degree days
 """
-function run_cropgdd(crop_type, start_date, end_date, hv_clim_df; kw...)
+function run_cropgdd(crop::AquaCrop.RepCrop, start_date, end_date, hv_clim_df; kw...)
     # see if we have climate data for the interval of dates
     if (start_date<hv_clim_df[1,:date]) | (end_date>hv_clim_df[end,:date])
         all_ok = AquaCrop.AllOk(false," missing clim data")
@@ -133,9 +133,6 @@ function run_cropgdd(crop_type, start_date, end_date, hv_clim_df; kw...)
     end
     clim_df = filter(row -> end_date>=row.date>=start_date, hv_clim_df, view=true)
 
-    # setup the crop since we need some parameters of it
-    crop = AquaCrop.RepCrop()
-    AquaCrop.set_crop!(crop, crop_type; aux = haskey(kw, :crop_dict) ? kw[:crop_dict] : nothing)
     # note that the code run even if a wrong crop type is passed, since it gives the default crop
     tbase = crop.Tbase
     tupper = crop.Tupper
@@ -146,5 +143,5 @@ function run_cropgdd(crop_type, start_date, end_date, hv_clim_df; kw...)
             clim_df.min_temperature,
             clim_df.max_temperature))
 
-    return DataFrame(date=clim_df[:,:date], GDD = gdd), crop
+    return DataFrame(date=clim_df[:,:date], GDD = gdd), AquaCrop.AllOk(true,"")
 end

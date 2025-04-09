@@ -2,6 +2,7 @@ module CropGrowthTutorial
 # ---- imports ----
 using DrWatson
 using Printf
+using StatsBase
 using DataFrames
 using Dates
 using CSV
@@ -14,8 +15,10 @@ using Unitful
 include("global_data.jl")
 include("read_data.jl")
 include("plot_data.jl")
-include("phenology_process.jl")
 include("simulation.jl")
+include("phenology_process.jl")
+include("canopy_root_process.jl")
+include("biomass_process.jl")
 
 
 #---- exports ----

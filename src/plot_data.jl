@@ -125,18 +125,21 @@ function plot_gddaily_stuff_one_year(cropfield::AquaCropField, crop_type, soil_t
 end
 
 """
-    plot_correlation(x, y, crop_type, region_name)
+    plot_correlation(x, y, crop_type, region_name, variable_name)
 
 plots the simulated yield vs measured yield, it also finds the Pearson and Spearman correlation between them
 """
-function plot_correlation(x, y, crop_type, region_name)
+function plot_correlation(xx, yy, crop_type, region_name, variable_name)
     f = Figure()
     ax = Axis(f[1,1],
-        title = crop_type*" simulated vs measured yield in region "*region_name,
-        xlabel = "measured yield",
-        ylabel = "simulated yield"
+        title = crop_type*" simulated vs actual "*variable_name*" in region "*region_name,
+        xlabel = "actual value",
+        ylabel = "simulated value"
     )
 
+    x, y = keep_only_notmissing(xx,yy)
+    x = Float64.(x)
+    y = Float64.(y)
     per = cor(x, y)
     spe = corspearman(x, y)
     mse = msd(x, y)
@@ -265,11 +268,11 @@ end
 
 plots the crop's daily stresses
 """
-function plot_crop_stress(cropfield::AquaCropField; kw...)
-    plot_crop_stress(cropfield.dayout; kw...)
+function plot_crop_stress(cropfield::AquaCropField, var::Symbol=:all; kw...)
+    plot_crop_stress(cropfield.dayout, var; kw...)
 end
 
-function plot_crop_stress(cropfield::AbstractDataFrame; kw...)
+function plot_crop_stress(cropfield::AbstractDataFrame, var::Symbol=:all; kw...)
     xx = findlast(x->x==4, cropfield.Stage) + 1
     d_ii = cropfield[xx, :Date]
     if haskey(kw, :end_day)
@@ -287,12 +290,27 @@ function plot_crop_stress(cropfield::AbstractDataFrame; kw...)
         xlabel = "Date",
         ylabel = "%"
     )
-    lines!(ax, x, cropfield[1:xx, "StExp"], label="StExp")
-    lines!(ax, x, cropfield[1:xx, "StSto"], label="StSto")
-    lines!(ax, x, cropfield[1:xx, "StSen"], label="StSen")
-    lines!(ax, x, cropfield[1:xx, "StSalt"], label="StSalt")
-    lines!(ax, x, cropfield[1:xx, "StWeed"], label="StWeed")
-    lines!(ax, x, cropfield[1:xx, "StTr"], label="StTr")
+    if var==:all
+        plt_wtr = true
+        plt_tem = true
+    elseif  var==:water
+        plt_wtr = true
+        plt_tem = false 
+    elseif  var==:temperature
+        plt_wtr = false 
+        plt_tem = true 
+    end
+
+    if  plt_wtr
+        lines!(ax, x, cropfield[1:xx, "StExp"], label="StExp")
+        lines!(ax, x, cropfield[1:xx, "StSto"], label="StSto")
+        lines!(ax, x, cropfield[1:xx, "StSen"], label="StSen")
+        lines!(ax, x, cropfield[1:xx, "StSalt"], label="StSalt")
+        lines!(ax, x, cropfield[1:xx, "StWeed"], label="StWeed")
+    end
+    if plt_tem
+        lines!(ax, x, cropfield[1:xx, "StTr"], label="StTr")
+    end
     axislegend(position = :lt)
 
     ax.xticklabelrotation = π/4
