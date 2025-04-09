@@ -18,7 +18,7 @@ include("plot_data.jl")
 include("simulation.jl")
 include("phenology_process.jl")
 include("canopy_root_process.jl")
-include("biomass_process.jl")
+include("biomass_yield_process.jl")
 
 
 #---- exports ----
