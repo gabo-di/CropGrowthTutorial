@@ -9,6 +9,8 @@ using CSV
 using AquaCrop
 using CairoMakie
 using Unitful
+using Optimization
+using OptimizationBBO
 
 
 # ---- includes ----
