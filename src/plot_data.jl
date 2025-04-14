@@ -410,7 +410,7 @@ function plot_temp(cropfield::AbstractDataFrame, tcold=10, theat=40, gd=12; kw..
     hlines!(ax, tcold, color = :turquoise2, linestyle = :dashdotdot, label="tcold flowering")
     hlines!(ax, theat, color = :tomato2, linestyle = :dashdotdot, label="theat flowering")
 
-    axislegend(position = :rb)
+    axislegend(position = :lt)
 
     ax.xticklabelrotation = π/4
     ax.xticklabelsize = 8
