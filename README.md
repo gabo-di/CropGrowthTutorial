@@ -1,5 +1,14 @@
 # CropGrowthTutorial
 
+## Introduction
+
+This tutorial helps to understand how to use [AquaCrop.jl](https://github.com/gabo-di/AquaCrop.jl)  
+calibrating crop parameters to real data. This tutorial is part of [Persefone project](https://persefone-model.eu).
+We use data from [RDWD](https://github.com/brry/rdwd) and 
+[Thüringer Landesamt für Statistik](https://statistik.thueringen.de/datenbank/TabAnzeige.asp?tabelle=kr000516%7C%7C).
+
+## Installation
+
 This code base is using the [Julia Language](https://julialang.org/) and
 [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
 to make a reproducible scientific project named
@@ -27,14 +36,14 @@ using DrWatson
 ```
 which auto-activate the project and enable local path handling from DrWatson.
 
-## Notebooks
+## Run Notebooks
 In case you have problems runing the notbooks then run
 ```julia
 using IJulia
 IJulia.installkernel("Julia CropGrowthTutorial", "--project=$(Base.active_project())")
 notebook(;dir=projectdir(), detached=true)
 ```
-then browse to the notebook that you want to run
+then browse to the notebook that you want to run.
 
 
 
