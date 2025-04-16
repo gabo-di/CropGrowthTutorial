@@ -27,8 +27,12 @@ function calibrate_biomass_yield_parameters!(crop_dict, crop_name, soil_type, hk
     ltoharvest = crop_dict["GDDaysToHarvest"]
     ccx = crop.CCx
     ltosenscence = recalculate_GDDaysToSenescence(cdc, ltoharvest, ccx)
-
     crop_dict["GDDaysToSenescence"] = round(Int, ltosenscence)
+
+    # reset HI to be an integer
+    if var_name == :Yield
+        crop_dict["HI"] = round(Int, crop_dict["HI"])
+    end
 
     return nothing 
 end
@@ -61,7 +65,7 @@ function _calibrate_biomass_yield_parameters(crop, crop_dict, crop_name, soil_ty
                     "GDDCDC" => x[Int(p["GDDCDC"][1])],
         )
         if var_name == :Yield
-            _crop_dict["HI"] = x[Int(p["HI"][1])]
+            _crop_dict["HI"] = round(Int,x[Int(p["HI"][1])])
         end
 
         kw = (

@@ -85,6 +85,7 @@ function process_crop_phenology_actual_gdd(crop_name, phenology_df, hk_clim_df; 
     df = DataFrame(
                     sowingdate = Date[],
                     harvestdate = Date[],
+                    year = Int[],
 
                     harvest_actualdays = Union{Missing,Int}[],
                     harvest_actualgdd = Union{Missing,Float64}[],
@@ -109,6 +110,7 @@ function process_crop_phenology_actual_gdd(crop_name, phenology_df, hk_clim_df; 
             continue
         end
         res = find_actual_days_gdd(gdd_df, row)
+        res[:year] = row.year
         push!(df, res)
     end
 

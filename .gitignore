@@ -8,6 +8,8 @@
 /plots
 /notebooks/.ipynb_checkpoints
 /_research
+/notebooks/calibrateCropTutorial_files
+/notebooks/calibrateCropTutorial.md
 
 ################################################################################
 #                                    Julia                                     #
