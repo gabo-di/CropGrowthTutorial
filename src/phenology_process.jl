@@ -252,6 +252,10 @@ function calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df,
     end
 
     pheno_df = process_crop_phenology(raw_phenology_df, sowing_phase, harvest_phase)
+    if size(pheno_df,1)<minimal_pheno_data
+        # not enough data for statistical fit, early return
+        return crop_dict, nothing
+    end
     pheno_actual_df = process_crop_phenology_actual_gdd(crop_name, pheno_df, hk_clim_df; kw...)
      
     # setup the crop since we need some parameters of it

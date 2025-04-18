@@ -1,5 +1,5 @@
 """
-    calibrate_phenology_parameters!(crop_dict, crop_name; kw...)
+    calibrate_canopy_root_parameters!(crop_dict, crop_name; kw...)
 
 changes a phenology-precalibrated crop_dict with the calibrated crop parameters related to root and canopy growth 
 """

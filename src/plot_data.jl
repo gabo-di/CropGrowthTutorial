@@ -182,12 +182,12 @@ function plot_soil_wc(cropfield::AbstractDataFrame; kw...)
         ylabel = "mm"
     )
 
-    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr"] - cropfield[1:xx,"Wr(SAT)"]), label="Wr")
-    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(FC)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="FC")
-    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(PWP)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="PWP")
-    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(exp)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="exp")
-    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(sto)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="sto")
-    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(sen)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="sen")
+    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr"] - cropfield[1:xx,"Wr(SAT)"]), label="Water in root zone")
+    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(FC)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="Field Capacity")
+    lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(PWP)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="Wilting Point")
+    # lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(exp)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="exp")
+    # lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(sto)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="sto")
+    # lines!(ax, x, ustrip.(cropfield[1:xx,"Wr(sen)"] - cropfield[1:xx,"Wr(SAT)"]), linestyle=:dash, label="sen")
 
 
     axislegend(position = :lt)
@@ -245,8 +245,8 @@ function plot_eto_tr(cropfield::AbstractDataFrame; kw...)
         ylabel = "mm"
     )
     barplot!(ax, x, ustrip.(cropfield[1:xx, "ETo"]), label="ETo", gap=0, color=:gray85, strokecolor=:black, strokewidth=1)
-    barplot!(ax, x, ustrip.(cropfield[1:xx, "Trx"]), label="Tpot", gap=0, color=(:dodgerblue, 0.5), strokecolor=:black, strokewidth=1)
-    barplot!(ax, x, ustrip.(cropfield[1:xx, "Tr"]), label="Tact", gap=0, color=(:lightsalmon, 0.3), strokecolor=:black, strokewidth=1)
+    barplot!(ax, x, ustrip.(cropfield[1:xx, "Trx"]), label="Potential Transpiration", gap=0, color=(:dodgerblue, 0.5), strokecolor=:black, strokewidth=1)
+    barplot!(ax, x, ustrip.(cropfield[1:xx, "Tr"]), label="Actual Transpiration", gap=0, color=(:lightsalmon, 0.3), strokecolor=:black, strokewidth=1)
     ax.xticklabelrotation = π/4
     ax.xticklabelsize = 8
     ax.yticklabelsize = 8
@@ -302,14 +302,14 @@ function plot_crop_stress(cropfield::AbstractDataFrame, var::Symbol=:all; kw...)
     end
 
     if  plt_wtr
-        lines!(ax, x, cropfield[1:xx, "StExp"], label="StExp")
-        lines!(ax, x, cropfield[1:xx, "StSto"], label="StSto")
-        lines!(ax, x, cropfield[1:xx, "StSen"], label="StSen")
-        lines!(ax, x, cropfield[1:xx, "StSalt"], label="StSalt")
-        lines!(ax, x, cropfield[1:xx, "StWeed"], label="StWeed")
+        lines!(ax, x, cropfield[1:xx, "StExp"], label="Expansion stress")
+        lines!(ax, x, cropfield[1:xx, "StSto"], label="Stomatal stress")
+        lines!(ax, x, cropfield[1:xx, "StSen"], label="Senescence stress")
+        # lines!(ax, x, cropfield[1:xx, "StSalt"], label="Salt stress")
+        # lines!(ax, x, cropfield[1:xx, "StWeed"], label="StWeed")
     end
     if plt_tem
-        lines!(ax, x, cropfield[1:xx, "StTr"], label="StTr")
+        lines!(ax, x, cropfield[1:xx, "StTr"], label="Temperature stress")
     end
     axislegend(position = :lt)
 
@@ -355,7 +355,7 @@ function plot_wpi(cropfield::AbstractDataFrame, wp=100, wpy=100; kw...)
         xlabel = "Date",
         ylabel = "%"
     )
-    lines!(ax, x, ustrip.(cropfield[1:xx, "WP"]), label="WP")
+    lines!(ax, x, ustrip.(cropfield[1:xx, "WP"]), label="Water Productivity")
     hlines!(ax, wp, color = :tomato, linestyle = :dash, label="target WP")
     axislegend(position = :rb)
 

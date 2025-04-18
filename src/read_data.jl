@@ -39,16 +39,21 @@ reads the climate data from the climate file
 function get_climate_data(station_name::AbstractString)
     hk_clim_path = "weather_" * station_name * ".csv"
     keep_cols = [:date, :precipitation, :max_temperature, :min_temperature, :potential_evapotranspiration];
-    hk_clim_df  = CSV.read(datadir(climate_data_dir, hk_clim_path), DataFrame;
-                        stripwhitespace=true,
-                        delim=",",
-                        missingstring="NA",
-                        select=(i, name) -> name in keep_cols,
-                        dateformat = DateFormat("yyyy-mm-dd"),
-                        types=(i, name) -> name==:date ? Date : Float64 );
-    date_eto = Date(1992, 1, 1);
-    filter!(row -> row.date >= date_eto, hk_clim_df);
-    return coalesce.(hk_clim_df, 0.0);
+    file_name = datadir(climate_data_dir, hk_clim_path)
+    if isfile(file_name)
+        hk_clim_df  = CSV.read(file_name, DataFrame;
+                            stripwhitespace=true,
+                            delim=",",
+                            missingstring="NA",
+                            select=(i, name) -> name in keep_cols,
+                            dateformat = DateFormat("yyyy-mm-dd"),
+                            types=(i, name) -> name==:date ? Date : Float64 );
+        date_eto = Date(1992, 1, 1);
+        filter!(row -> row.date >= date_eto, hk_clim_df);
+        return coalesce.(hk_clim_df, 0.0);
+    else
+        return nothing
+    end
 end
 
 """
@@ -73,12 +78,17 @@ reads the yield data from the yield file
 """
 function get_yield_data(station_name::AbstractString)
     hk_yield_path = "yield_data_" * station_name * ".csv"
-    return CSV.read(datadir(yield_data_dir, hk_yield_path), DataFrame;
-                              stripwhitespace=true,
-                              delim=",",
-                              missingstring="NA",
-                              ignorerepeated=true
-                              );
+    file_name = datadir(yield_data_dir, hk_yield_path)
+    if isfile(file_name)
+        return CSV.read(file_name, DataFrame;
+                                  stripwhitespace=true,
+                                  delim=",",
+                                  missingstring="NA",
+                                  ignorerepeated=true
+                                  );
+    else
+        return nothing
+    end
 end
 
 """
@@ -104,13 +114,21 @@ if called with station::String then uses the data from `get_phenology_stations`
 """
 function get_crop_phenology_data(crop_name::AbstractString)
     cropfile = "phenology_" * crop_name * ".csv"
-    df = CSV.read(datadir(phenology_data_dir, cropfile), DataFrame, normalizenames=true, stripwhitespace=true)
-    preprocess_df!(df)
-    return df
+    file_name = datadir(phenology_data_dir, cropfile)
+    if isfile(file_name)
+        df = CSV.read(file_name, DataFrame, normalizenames=true, stripwhitespace=true)
+        preprocess_df!(df)
+        return df
+    else
+        return nothing
+    end
 end
 
 function get_crop_phenology_data(cropfile::AbstractString, station::Int)
     df = get_crop_phenology_data(cropfile)
+    if isnothing(df)
+        return df
+    end
     gb = groupby(df, :stations_id)
     if haskey(gb, (station,))
         return gb[(station,)]
@@ -122,7 +140,7 @@ end
 function get_crop_phenology_data(cropfile::AbstractString, station::AbstractString)
     st = get_phenology_stations(station)
     if isnothing(st)
-        return nothing
+        return st 
     end
     station_i = st[1,:stations_phenology_id]
 
@@ -152,7 +170,8 @@ end
 returns a dataframe with the phenology stations name and ids
 """
 function get_phenology_stations()
-    CSV.read(datadir("exp_raw","cap4gi_stations.csv"), DataFrame)
+    file_name = datadir("exp_raw","cap4gi_stations.csv")
+    CSV.read(file_name, DataFrame)
 end
 
 function get_phenology_stations(I::Int)
