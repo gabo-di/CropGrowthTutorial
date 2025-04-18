@@ -1,3 +1,19 @@
+###############
+# DESCRIPTION #
+###############
+"""
+    We make the crop calibration for all the crops and all the stations
+
+    Note:
+    1. Some stations do not have enough phenology data to calibrate the phenology
+    1. Some stations do not have yield/biomass data
+
+    If we only have full data for a given crop in a given station we do the full calibration
+    If we only have enough data for the phenology calibration we only do this
+    If we do not have enough data for anything we skip the crop
+    
+    Results of crop calibration are on `data/sims`
+"""
 #########
 # SETUP #
 #########

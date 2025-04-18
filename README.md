@@ -37,6 +37,7 @@ using DrWatson
 which auto-activate the project and enable local path handling from DrWatson.
 
 ## Run Notebooks
+
 In case you have problems runing the notbooks then run
 ```julia
 using IJulia
@@ -45,5 +46,18 @@ notebook(;dir=projectdir(), detached=true)
 ```
 then browse to the notebook that you want to run.
 
+## Run Scripts
 
+Inside a julia sesion you can do the following
+```
+using DrWatson
+@quickactivate
 
+include(scriptsdir("script_name.jl")) # change script_name.jl with the actual name of the script you want to run
+main() # main() is the entry point to run the code on the script
+```
+
+## Data
+
+We are adding the raw data to run the simulations in `data/exp_raw`, 
+and the result of the crop calibration on `data/sims`
