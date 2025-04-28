@@ -6,6 +6,7 @@
 # /data
 /videos
 /plots
+/papers
 /notebooks/.ipynb_checkpoints
 /_research
 /notebooks/calibrateCropTutorial_files
