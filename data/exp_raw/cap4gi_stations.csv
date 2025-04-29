@@ -1,9 +1,9 @@
 stations_phenology_id,description,station_name,soil_type
-15215,"Eichsfeld = 2925","Eichsfeld",""
+13642,"Eichsfeld = 2925, actual phenology is 15215 but we use station phenology from station at 3.8 km","Eichsfeld","loamy sand"
 14233,"Hohenlohe = 3761","Hohenlohe",""
 10705,"Bodensee = 6263","Bodensee",""
 10536,"Oberrhein = 5275","Oberrhein",""
-7650,"Neustadt = 3897, 2950","Neustadt",""
+7650,"Neustadt i Holst = 3897, 2950","Neustadt_i_Holst",""
 11220,"Ergolding = 13710, 2831","Ergolding",""
 19732,"Jena (SHK): Großbockedra [19732] = 2444","Jena","silty clay"
 15460,"Thüringer Becken (UHK): **Dachwig [15460]** = 896","Thuringer_Becken","loam"
