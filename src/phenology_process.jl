@@ -239,11 +239,11 @@ function find_simulated_days_gdd(gdd_df, crop)
 end
 
 """
-    crop_dict, df = calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df, sowing_phase, harvest_phase; kw...)
+    crop_dict, df = calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df, sowing_phase, harvest_phase, method=:median; kw...)
 
 returns a crop_dict with the calibrated crop parameters related to phenology stages
 """
-function calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df, sowing_phase, harvest_phase; kw...)
+function calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df, sowing_phase, harvest_phase, method=:median; kw...)
     # check if we hace a crop_dict
     if haskey(kw, :crop_dict)
         crop_dict = kw[:crop_dict]
@@ -262,17 +262,26 @@ function calibrate_phenology_parameters(raw_phenology_df, crop_name, hk_clim_df,
     crop = AquaCrop.RepCrop()
     AquaCrop.set_crop!(crop, crop_name; aux = haskey(kw, :crop_dict) ? kw[:crop_dict] : nothing)
 
+    # use method to choose function to calibrate
+    if method == :median
+        ff = median
+    elseif method == :mean
+        ff = mean
+    else
+        ff = median
+    end
 
+    
     pars = ["GDDaysToHarvest", "GDDaysToFlowering", "GDDaysToGermination"]
     cols = [:harvest_actualgdd, :beginflowering_actualgdd, :emergence_actualgdd]
     for (par_, col) in zip(pars, cols)
         v = pheno_actual_df[!,col]
-        crop_dict[par_] = _select_val( median(v), getfield(crop, Symbol(par_)) )
+        crop_dict[par_] = _select_val( ff(v), getfield(crop, Symbol(par_)) )
     end
 
     v = pheno_actual_df[:,:endflowering_actualgdd]
     par_ = "GDDLengthFlowering"
-    crop_dict[par_] = _select_val( median(v) - crop_dict["GDDaysToFlowering"], getfield(crop, Symbol(par_)) ) 
+    crop_dict[par_] = _select_val( ff(v) - crop_dict["GDDaysToFlowering"], getfield(crop, Symbol(par_)) ) 
 
     # create a kw tuple with the additional information that we wish to pass to AquaCrop
     # consider the median of the actual gdd distribution for each phenology phase
