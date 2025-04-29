@@ -1,4 +1,4 @@
-# Crop fited: crop_type=silage_maize station_name=Ergolding soil_type=missing phenology canopy calibration
+# Crop fited: crop_type=silage_maize station_name=Ergolding soil_type= phenology canopy calibration
 [crop]
 DaysToFullCanopy = -9
 DryMatter = 90
